@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ORINJI COIN — Digital Coin Wallet</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            950: '#040d1a',
+                            900: '#061326',
+                            800: '#0a1d37',
+                            700: '#112a4a',
+                        },
+                        forest: {
+                            950: '#041f1a',
+                            900: '#062c24',
+                            800: '#093b30',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React & ReactDOM 18 -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel Standalone for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(circle at top left, #071930 0%, #040e1c 45%, #041d18 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Elegant Banking Gradient Background */
+        .app-gradient-bg {
+            background: linear-gradient(155deg, #061326 0%, #072227 52%, #062c24 100%);
+        }
+
+        .wallet-card-gradient {
+            background: linear-gradient(135deg, #0d2b45 0%, #0a3d33 48%, #10b981 135%);
+            box-shadow: 0 20px 45px -12px rgba(6, 19, 38, 0.85), 0 0 25px rgba(16, 185, 129, 0.18);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card-hover {
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card-hover:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(16, 185, 129, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.3);
+            border-radius: 9999px;
+        }
+
+        /* Payment Success SVG Stroke Animations */
+        @keyframes drawCircle {
+            0% {
+                stroke-dashoffset: 314;
+            }
+
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes drawCheck {
+            0% {
+                stroke-dashoffset: 80;
+            }
+
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.35));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.75));
+            }
+        }
+
+        @keyframes fadeUpIn {
+            0% {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-circle-draw {
+            stroke-dasharray: 314;
+            stroke-dashoffset: 314;
+            animation: drawCircle 0.85s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+
+        .animate-check-draw {
+            stroke-dasharray: 80;
+            stroke-dashoffset: 80;
+            animation: drawCheck 0.55s cubic-bezier(0.65, 0, 0.35, 1) 0.75s forwards;
+        }
+
+        .animate-svg-glow {
+            animation: pulseGlow 2.4s ease-in-out infinite 1.3s;
+        }
+
+        .animate-fade-up {
+            opacity: 0;
+            animation: fadeUpIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.95s;
+        }
+
+        .delay-2 {
+            animation-delay: 1.15s;
+        }
+
+        .delay-3 {
+            animation-delay: 1.35s;
+        }
+
+        /* Drawer & Modal Animations */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .drawer-slide-in {
+            animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .backdrop-fade-in {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <!-- Firebase Modular SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signInAnonymously,
+            signInWithCustomToken,
+            onAuthStateChanged,
+            signOut,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            setDoc,
+            addDoc,
+            updateDoc,
+            collection,
+            onSnapshot,
+            runTransaction,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Expose Firebase modules globally for Babel React script
+        window.FirebaseSDK = {
+            initializeApp,
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signInAnonymously,
+            signInWithCustomToken,
+            onAuthStateChanged,
+            signOut,
+            updateProfile,
+            getFirestore,
+            doc,
+            getDoc,
+            setDoc,
+            addDoc,
+            updateDoc,
+            collection,
+            onSnapshot,
+            runTransaction,
+            serverTimestamp
+        };
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        // =========================================================================
+        // 1. INTERNATIONALIZATION (i18n) — ENGLISH & RUSSIAN
+        // =========================================================================
+        const TRANSLATIONS = {
+            en: {
+                brandName: "ORINJI COIN",
+                brandSubtitle: "Digital Coin Wallet",
+                // Auth
+                welcomeTitle: "Welcome to ORINJI",
+                welcomeSub: "Next-generation digital asset banking",
+                loginTab: "Sign In",
+                registerTab: "Create Account",
+                fullNameLabel: "Full Name",
+                fullNamePlaceholder: "e.g. Amir Rahimov",
+                emailLabel: "Email Address",
+                emailPlaceholder: "name@example.com",
+                passwordLabel: "Password",
+                passwordPlaceholder: "Minimum 6 characters",
+                loginBtn: "Sign In to Wallet",
+                registerBtn: "Create ORINJI Wallet",
+                quickDemoBtn: "Instant Demo Access",
+                demoHint: "Creates an instant test wallet with 1,000 ORINJI",
+                authErrorEmpty: "Please fill in all required fields.",
+                authErrorName: "Please enter your full name (at least 2 characters).",
+                authErrorPass: "Password must be at least 6 characters.",
+                authErrorInvalid: "Invalid email or password. Please try again.",
+                authErrorInUse: "This email is already registered.",
+                authErrorGeneric: "Authentication failed. Please check your details.",
+                // Dashboard
+                totalBalance: "Total Wallet Balance",
+                walletId: "Wallet ID",
+                activeStatus: "Active",
+                sendBtn: "SEND",
+                topUpQuickBtn: "TOP UP",
+                recentTransactions: "Transaction History",
+                viewAll: "View All",
+                noTransactions: "No transactions yet",
+                noTransactionsSub: "Top up your wallet or send ORINJI coins to get started.",
+                sentTo: "Sent to",
+                receivedFrom: "Received from",
+                walletTopUpType: "Wallet Top-up",
+                welcomeBonusType: "Welcome Bonus",
+                // Drawer Menu
+                menuTitle: "Navigation",
+                menuDashboard: "Dashboard",
+                menuTopUp: "Wallet Top-up",
+                menuHistory: "Transaction History",
+                menuSettings: "Settings",
+                menuProfile: "Profile",
+                menuLogout: "Sign Out",
+                // Top-up Screen
+                topUpTitle: "Wallet Top-up",
+                topUpStep1Sub: "Enter the amount of ORINJI coins to add to your wallet",
+                amountLabel: "Amount (ORINJI)",
+                enterAmountPlaceholder: "0.00",
+                quickSelect: "Quick Select",
+                nextBtn: "NEXT",
+                confirmTopUpTitle: "Confirm Top-up",
+                confirmTopUpSub: "Please review your top-up details before confirming",
+                topUpAmountRow: "Top-up Amount",
+                commissionRow: "Service Fee",
+                freeFee: "0 ORINJI (Free)",
+                totalCreditRow: "Total to Credit",
+                confirmBtn: "CONFIRM",
+                backBtn: "Back",
+                // Send Coins Screen
+                sendTitle: "Send Coins",
+                sendSub: "Instant zero-fee transfer to any registered ORINJI user",
+                recipientLabel: "Recipient Name",
+                recipientPlaceholder: "Start typing a name...",
+                userNotFound: "User not found",
+                selectedRecipient: "Selected Recipient",
+                changeRecipient: "Change",
+                availableBalance: "Available",
+                maxBtn: "MAX",
+                payBtn: "PAY",
+                confirmTransferTitle: "Confirm Transfer",
+                confirmTransferSub: "Verify recipient and amount carefully",
+                recipientRow: "Recipient",
+                transferAmountRow: "Transfer Amount",
+                confirmPayBtn: "CONFIRM & PAY",
+                // Validation & Notifications
+                errSelectRecipient: "Please select a registered recipient from the list.",
+                errInvalidAmount: "Please enter a valid amount greater than 0.",
+                errInsufficientBalance: "Insufficient wallet balance for this transfer.",
+                errSelfTransfer: "You cannot send coins to yourself.",
+                errRecipientMissing: "Recipient account could not be verified.",
+                errTransactionFailed: "Transaction failed. Please try again.",
+                copiedToast: "Copied to clipboard!",
+                // Payment Success Overlay
+                paymentSuccessTitle: "PAYMENT SUCCESSFUL",
+                topUpSuccessSubtitle: "Added to your ORINJI Wallet",
+                sentToLabel: "Recipient",
+                amountSentLabel: "Amount",
+                doneBtn: "DONE",
+                // History Screen
+                filterAll: "All",
+                filterSent: "Sent",
+                filterReceived: "Received",
+                // Profile & Settings
+                profileTitle: "User Profile",
+                verifiedHolder: "Verified Wallet Holder",
+                accountNumber: "Account Number",
+                emailAddress: "Email Address",
+                memberSince: "Account Status",
+                verifiedActive: "Verified & Active",
+                settingsTitle: "Settings",
+                languageSetting: "Application Language",
+                languageSettingSub: "Choose between English and Russian",
+                securitySetting: "Transaction Protection",
+                securitySettingSub: "Atomic ledger verification enabled",
+                enabledBadge: "Enabled",
+                appVersion: "ORINJI COIN Core v2.4 • Encrypted Ledger"
+            },
+            ru: {
+                brandName: "ORINJI COIN",
+                brandSubtitle: "Цифровой крипто-кошелёк",
+                // Auth
+                welcomeTitle: "Добро пожаловать в ORINJI",
+                welcomeSub: "Современный цифровой кошелёк нового поколения",
+                loginTab: "Вход",
+                registerTab: "Регистрация",
+                fullNameLabel: "Имя и фамилия",
+                fullNamePlaceholder: "Например: Амир Рахимов",
+                emailLabel: "Электронная почта",
+                emailPlaceholder: "name@example.com",
+                passwordLabel: "Пароль",
+                passwordPlaceholder: "Минимум 6 символов",
+                loginBtn: "Войти в кошелёк",
+                registerBtn: "Создать кошелёк ORINJI",
+                quickDemoBtn: "Быстрый демо-вход",
+                demoHint: "Создаёт тестовый кошелёк с балансом 1 000 ORINJI",
+                authErrorEmpty: "Пожалуйста, заполните все обязательные поля.",
+                authErrorName: "Введите ваше имя (минимум 2 символа).",
+                authErrorPass: "Пароль должен содержать минимум 6 символов.",
+                authErrorInvalid: "Неверный email или пароль. Попробуйте снова.",
+                authErrorInUse: "Этот email уже зарегистрирован.",
+                authErrorGeneric: "Ошибка авторизации. Проверьте введённые данные.",
+                // Dashboard
+                totalBalance: "Общий баланс кошелька",
+                walletId: "Номер кошелька",
+                activeStatus: "Активен",
+                sendBtn: "ОТПРАВИТЬ",
+                topUpQuickBtn: "ПОПОЛНИТЬ",
+                recentTransactions: "История операций",
+                viewAll: "Все операции",
+                noTransactions: "Операций пока нет",
+                noTransactionsSub: "Пополните кошелёк или отправьте монеты ORINJI.",
+                sentTo: "Перевод:",
+                receivedFrom: "Поступление от:",
+                walletTopUpType: "Пополнение кошелька",
+                welcomeBonusType: "Приветственный бонус",
+                // Drawer Menu (Exact required labels)
+                menuTitle: "Меню",
+                menuDashboard: "Главная",
+                menuTopUp: "Пополнение кошелька",
+                menuHistory: "История операций",
+                menuSettings: "Настройки",
+                menuProfile: "Профиль",
+                menuLogout: "Выйти из аккаунта",
+                // Top-up Screen
+                topUpTitle: "Пополнение кошелька",
+                topUpStep1Sub: "Введите количество монет ORINJI для зачисления",
+                amountLabel: "Сумма (ORINJI)",
+                enterAmountPlaceholder: "0.00",
+                quickSelect: "Быстрый выбор",
+                nextBtn: "ДАЛЕЕ",
+                confirmTopUpTitle: "Подтверждение пополнения",
+                confirmTopUpSub: "Проверьте сумму пополнения перед подтверждением",
+                topUpAmountRow: "Сумма пополнения",
+                commissionRow: "Комиссия сервиса",
+                freeFee: "0 ORINJI (Без комиссии)",
+                totalCreditRow: "Итого к зачислению",
+                confirmBtn: "ПОДТВЕРДИТЬ",
+                backBtn: "Назад",
+                // Send Coins Screen
+                sendTitle: "Отправить монеты",
+                sendSub: "Мгновенный перевод без комиссии любому пользователю ORINJI",
+                recipientLabel: "Имя получателя",
+                recipientPlaceholder: "Начните вводить имя...",
+                userNotFound: "Пользователь не найден",
+                selectedRecipient: "Выбранный получатель",
+                changeRecipient: "Изменить",
+                availableBalance: "Доступно",
+                maxBtn: "МАКС",
+                payBtn: "ОПЛАТИТЬ",
+                confirmTransferTitle: "Подтверждение перевода",
+                confirmTransferSub: "Проверьте данные получателя и сумму перевода",
+                recipientRow: "Получатель",
+                transferAmountRow: "Сумма перевода",
+                confirmPayBtn: "ПОДТВЕРДИТЬ И ОПЛАТИТЬ",
+                // Validation & Notifications
+                errSelectRecipient: "Выберите зарегистрированного получателя из списка.",
+                errInvalidAmount: "Введите корректную сумму больше 0.",
+                errInsufficientBalance: "Недостаточно средств на балансе кошелька.",
+                errSelfTransfer: "Нельзя отправить монеты самому себе.",
+                errRecipientMissing: "Аккаунт получателя не найден в системе.",
+                errTransactionFailed: "Ошибка выполнения операции. Попробуйте снова.",
+                copiedToast: "Скопировано в буфер обмена!",
+                // Payment Success Overlay (Exact required text)
+                paymentSuccessTitle: "ПЛАТЁЖ УСПЕШНО ВЫПОЛНЕН",
+                topUpSuccessSubtitle: "Зачислено на ваш кошелёк ORINJI",
+                sentToLabel: "Получатель",
+                amountSentLabel: "Сумма",
+                doneBtn: "ГОТОВО",
+                // History Screen
+                filterAll: "Все",
+                filterSent: "Отправленные",
+                filterReceived: "Полученные",
+                // Profile & Settings
+                profileTitle: "Профиль",
+                verifiedHolder: "Подтверждённый владелец кошелька",
+                accountNumber: "Номер счёта",
+                emailAddress: "Электронная почта",
+                memberSince: "Статус аккаунта",
+                verifiedActive: "Подтверждён и активен",
+                settingsTitle: "Настройки",
+                languageSetting: "Язык приложения",
+                languageSettingSub: "Выберите английский или русский язык",
+                securitySetting: "Защита транзакций",
+                securitySettingSub: "Атомарная проверка баланса активна",
+                enabledBadge: "Включено",
+                appVersion: "ORINJI COIN Core v2.4 • Защищённый реестр"
+            }
+        };
+
+        // =========================================================================
+        // 2. LUCIDE ICON WRAPPER & CUSTOM ORINJI LOGO
+        // =========================================================================
+        const Icon = ({ name, size = 20, className = "" }) => {
+            const ref = useRef(null);
+            useEffect(() => {
+                if (window.lucide && ref.current) {
+                    ref.current.innerHTML = '';
+                    const i = document.createElement('i');
+                    i.setAttribute('data-lucide', name);
+                    i.style.width = `${size}px`;
+                    i.style.height = `${size}px`;
+                    if (className) i.className = className;
+                    ref.current.appendChild(i);
+                    window.lucide.createIcons({ nodes: [i] });
+                }
+            }, [name, size, className]);
+            return <span ref={ref} className="inline-flex items-center justify-center shrink-0" />;
+        };
+
+        const OrinjiLogo = ({ size = 34 }) => (
+            <svg width={size} height={size} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                <defs>
+                    <linearGradient id="orinjiGrad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#10B981" />
+                        <stop offset="55%" stopColor="#059669" />
+                        <stop offset="100%" stopColor="#0EA5E9" />
+                    </linearGradient>
+                </defs>
+                <rect x="2" y="2" width="40" height="40" rx="13" fill="url(#orinjiGrad)" fillOpacity="0.2" stroke="url(#orinjiGrad)" strokeWidth="2" />
+                <circle cx="22" cy="22" r="11" stroke="#FFFFFF" strokeWidth="2.4" />
+                <path d="M22 15V29M17.5 19.5L22 15L26.5 19.5" stroke="#10B981" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        );
+
+        // =========================================================================
+        // 3. HELPERS
+        // =========================================================================
+        const formatCoins = (num) => {
+            const value = Number(num || 0);
+            return value.toLocaleString('en-US', {
+                minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+                maximumFractionDigits: 2
+            });
+        };
+
+        const generateWalletNumber = (uid) => {
+            const clean = (uid || Math.random().toString(36).substring(2)).toUpperCase().replace(/[^A-Z0-9]/g, '');
+            const part1 = clean.slice(0, 4).padEnd(4, '8');
+            const part2 = clean.slice(4, 8).padEnd(4, '4');
+            return `ORJ-${part1}-${part2}`;
+        };
+
+        const formatDateTime = (ts, lang) => {
+            if (!ts) return lang === 'ru' ? 'Только что' : 'Just now';
+            const date = ts.toDate ? ts.toDate() : new Date(ts);
+            return date.toLocaleString(lang === 'ru' ? 'ru-RU' : 'en-US', {
+                day: '2-digit',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        };
+
+        // =========================================================================
+        // 4. PAYMENT SUCCESS ANIMATION OVERLAY (FULL-SCREEN SVG STROKE ANIMATION)
+        // =========================================================================
+        const PaymentSuccessOverlay = ({ data, t, onDone }) => {
+            if (!data) return null;
+            return (
+                <div className="fixed inset-0 z-50 flex flex-col items-center justify-between px-6 py-12 text-white backdrop-fade-in"
+                    style={{ background: 'linear-gradient(160deg, #040e1d 0%, #062226 48%, #062c24 100%)' }}>
+                    {/* Top Brand Header */}
+                    <div className="flex items-center gap-2.5 opacity-85">
+                        <OrinjiLogo size={28} />
+                        <span className="text-sm font-bold tracking-widest uppercase">{t.brandName}</span>
+                    </div>
+
+                    {/* Center Animated Checkmark & Details */}
+                    <div className="flex flex-col items-center text-center max-w-sm w-full my-auto">
+                        {/* Animated Circle + Checkmark SVG */}
+                        <div className="relative w-32 h-32 mb-8 flex items-center justify-center animate-svg-glow">
+                            <svg className="w-full h-full" viewBox="0 0 110 110" fill="none">
+                                {/* Subtle ambient ring */}
+                                <circle cx="55" cy="55" r="50" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" />
+                                {/* Self-drawing white circular outline */}
+                                <circle
+                                    cx="55"
+                                    cy="55"
+                                    r="50"
+                                    stroke="#FFFFFF"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                    transform="rotate(-90 55 55)"
+                                    className="animate-circle-draw"
+                                />
+                                {/* Self-drawing white checkmark */}
+                                <path
+                                    d="M34 56.5L48.5 71L77 41"
+                                    stroke="#FFFFFF"
+                                    strokeWidth="4"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="animate-check-draw"
+                                />
+                            </svg>
+                        </div>
+
+                        {/* Required Exact Heading */}
+                        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide text-white mb-6 animate-fade-up delay-1">
+                            {t.paymentSuccessTitle}
+                        </h1>
+
+                        {/* Recipient & Coins Sent Card */}
+                        <div className="w-full glass-panel rounded-3xl p-5 space-y-4 animate-fade-up delay-2">
+                            <div className="flex items-center justify-between text-sm border-b border-white/10 pb-3">
+                                <span className="text-white/65">{t.sentToLabel}</span>
+                                <span className="font-semibold text-white text-right truncate max-w-[190px]">
+                                    {data.recipientName}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-white/65">{t.amountSentLabel}</span>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-2xl font-extrabold text-emerald-400">
+                                        {formatCoins(data.amount)}
+                                    </span>
+                                    <span className="text-xs font-bold tracking-wider text-emerald-300">ORINJI</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bottom DONE / ГОТОВО Button */}
+                    <div className="w-full max-w-sm animate-fade-up delay-3">
+                        <button
+                            onClick={onDone}
+                            className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.99] text-navy-950 font-extrabold text-base tracking-wider shadow-lg shadow-emerald-500/30 transition-all cursor-pointer"
+                        >
+                            {t.doneBtn}
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // =========================================================================
+        // 5. MAIN APPLICATION COMPONENT
+        // =========================================================================
+        function App() {
+            // Language state (English default, persisted in localStorage)
+            const [lang, setLang] = useState(() => {
+                try {
+                    return localStorage.getItem('orinji_lang') === 'ru' ? 'ru' : 'en';
+                } catch {
+                    return 'en';
+                }
+            });
+            const t = TRANSLATIONS[lang];
+
+            const handleLanguageChange = (newLang) => {
+                setLang(newLang);
+                try {
+                    localStorage.setItem('orinji_lang', newLang);
+                } catch { }
+            };
+
+            // Firebase instances & Auth state
+            const [fbReady, setFbReady] = useState(Boolean(window.FirebaseSDK));
+            const [fbServices, setFbServices] = useState(null);
+            const [authUser, setAuthUser] = useState(null);
+            const [authLoading, setAuthLoading] = useState(true);
+
+            // Database state
+            const [userProfile, setUserProfile] = useState(null);
+            const [allUsers, setAllUsers] = useState([]);
+            const [transactions, setTransactions] = useState([]);
+
+            // Navigation & UI state
+            const [activeView, setActiveView] = useState('dashboard'); // dashboard | topup | send | history | profile | settings
+            const [drawerOpen, setDrawerOpen] = useState(false);
+            const [toastMsg, setToastMsg] = useState('');
+            const [successOverlayData, setSuccessOverlayData] = useState(null);
+
+            // Auth Form state
+            const [authMode, setAuthMode] = useState('login'); // login | register
+            const [fullNameInput, setFullNameInput] = useState('');
+            const [emailInput, setEmailInput] = useState('');
+            const [passwordInput, setPasswordInput] = useState('');
+            const [authError, setAuthError] = useState('');
+            const [authSubmitting, setAuthSubmitting] = useState(false);
+
+            // Top-Up Flow state
+            const [topUpStep, setTopUpStep] = useState(1); // 1: enter amount, 2: confirm
+            const [topUpAmount, setTopUpAmount] = useState('');
+            const [topUpError, setTopUpError] = useState('');
+            const [topUpProcessing, setTopUpProcessing] = useState(false);
+
+            // Send Coins Flow state
+            const [recipientQuery, setRecipientQuery] = useState('');
+            const [selectedRecipient, setSelectedRecipient] = useState(null);
+            const [dropdownOpen, setDropdownOpen] = useState(false);
+            const [sendAmount, setSendAmount] = useState('');
+            const [sendError, setSendError] = useState('');
+            const [sendConfirmOpen, setSendConfirmOpen] = useState(false);
+            const [sendProcessing, setSendProcessing] = useState(false);
+
+            // History filter state
+            const [historyFilter, setHistoryFilter] = useState('all'); // all | sent | received
+
+            const showToast = (msg) => {
+                setToastMsg(msg);
+                setTimeout(() => setToastMsg(''), 2600);
+            };
+
+            const copyToClipboard = (text) => {
+                const el = document.createElement('textarea');
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast(t.copiedToast);
+            };
+
+            // Wait for Firebase SDK module load
+            useEffect(() => {
+                if (window.FirebaseSDK) {
+                    setFbReady(true);
+                    return;
+                }
+                const onReady = () => setFbReady(true);
+                window.addEventListener('firebase-ready', onReady);
+                return () => window.removeEventListener('firebase-ready', onReady);
+            }, []);
+
+            // Initialize Firebase App, Auth, and Firestore
+            useEffect(() => {
+                if (!fbReady) return;
+                const SDK = window.FirebaseSDK;
+
+                // Environment config or fallback demo config
+                const rawConfig = typeof __firebase_config !== 'undefined'
+                    ? JSON.parse(__firebase_config)
+                    : {
+                        apiKey: "AIzaSyDemoOrinjiCoinWalletKey00000",
+                        authDomain: "orinji-coin-wallet.firebaseapp.com",
+                        projectId: "orinji-coin-wallet",
+                        storageBucket: "orinji-coin-wallet.appspot.com",
+                        messagingSenderId: "100000000000",
+                        appId: "1:100000000000:web:orinjicoinwallet"
+                    };
+
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'orinji-coin-wallet';
+                const app = SDK.initializeApp(rawConfig);
+                const auth = SDK.getAuth(app);
+                const db = SDK.getFirestore(app);
+
+                setFbServices({ SDK, auth, db, appId });
+
+                const unsubscribeAuth = SDK.onAuthStateChanged(auth, async (user) => {
+                    setAuthUser(user);
+                    setAuthLoading(false);
+                });
+
+                return () => unsubscribeAuth();
+            }, [fbReady]);
+
+            // Ensure User Profile Document Exists & Subscribe to Real-Time Users + Transactions
+            useEffect(() => {
+                if (!fbServices || !authUser) {
+                    setUserProfile(null);
+                    setAllUsers([]);
+                    setTransactions([]);
+                    return;
+                }
+
+                const { SDK, db, appId } = fbServices;
+                const usersColRef = SDK.collection(db, 'artifacts', appId, 'public', 'data', 'users');
+                const currentUserDocRef = SDK.doc(db, 'artifacts', appId, 'public', 'data', 'users', authUser.uid);
+                const txColRef = SDK.collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+
+                // Ensure user document exists in Firestore
+                const ensureProfile = async () => {
+                    try {
+                        const snap = await SDK.getDoc(currentUserDocRef);
+                        if (!snap.exists()) {
+                            const displayName = authUser.displayName || (authUser.email ? authUser.email.split('@')[0] : 'Orinji User');
+                            await SDK.setDoc(currentUserDocRef, {
+                                uid: authUser.uid,
+                                fullName: displayName,
+                                fullNameLower: displayName.toLowerCase(),
+                                email: authUser.email || 'demo@orinji.io',
+                                walletNumber: generateWalletNumber(authUser.uid),
+                                balance: 1000,
+                                createdAt: SDK.serverTimestamp()
+                            });
+
+                            await SDK.addDoc(txColRef, {
+                                senderId: 'SYSTEM',
+                                senderName: 'ORINJI COIN',
+                                recipientId: authUser.uid,
+                                recipientName: displayName,
+                                amount: 1000,
+                                type: 'topup',
+                                isWelcome: true,
+                                timestamp: SDK.serverTimestamp()
+                            });
+                        }
+                    } catch (err) {
+                        console.error("Profile init error:", err);
+                    }
+                };
+
+                ensureProfile();
+
+                // Real-time listener for all registered users (enables live recipient search & live balance updates)
+                const unsubUsers = SDK.onSnapshot(
+                    usersColRef,
+                    (snapshot) => {
+                        const list = [];
+                        snapshot.forEach((docSnap) => {
+                            const data = docSnap.data();
+                            list.push({ id: docSnap.id, ...data });
+                            if (docSnap.id === authUser.uid) {
+                                setUserProfile({ id: docSnap.id, ...data });
+                            }
+                        });
+                        setAllUsers(list);
+                    },
+                    (error) => console.error("Users listener error:", error)
+                );
+
+                // Real-time listener for all transactions (filtered & sorted in memory per Firestore best practices)
+                const unsubTx = SDK.onSnapshot(
+                    txColRef,
+                    (snapshot) => {
+                        const relevant = [];
+                        snapshot.forEach((docSnap) => {
+                            const data = docSnap.data();
+                            if (data.senderId === authUser.uid || data.recipientId === authUser.uid) {
+                                relevant.push({ id: docSnap.id, ...data });
+                            }
+                        });
+                        relevant.sort((a, b) => {
+                            const tA = a.timestamp?.toMillis ? a.timestamp.toMillis() : Date.now();
+                            const tB = b.timestamp?.toMillis ? b.timestamp.toMillis() : Date.now();
+                            return tB - tA;
+                        });
+                        setTransactions(relevant);
+                    },
+                    (error) => console.error("Transactions listener error:", error)
+                );
+
+                return () => {
+                    unsubUsers();
+                    unsubTx();
+                };
+            }, [fbServices, authUser]);
+
+            // =======================================================================
+            // 6. AUTHENTICATION HANDLERS
+            // =======================================================================
+            const handleAuthSubmit = async (e) => {
+                e.preventDefault();
+                if (!fbServices) return;
+                setAuthError('');
+
+                const email = emailInput.trim();
+                const password = passwordInput;
+                const name = fullNameInput.trim();
+
+                if (!email || !password) {
+                    setAuthError(t.authErrorEmpty);
+                    return;
+                }
+                if (authMode === 'register' && name.length < 2) {
+                    setAuthError(t.authErrorName);
+                    return;
+                }
+                if (password.length < 6) {
+                    setAuthError(t.authErrorPass);
+                    return;
+                }
+
+                setAuthSubmitting(true);
+                const { SDK, auth, db, appId } = fbServices;
+
+                try {
+                    if (authMode === 'register') {
+                        const cred = await SDK.createUserWithEmailAndPassword(auth, email, password);
+                        await SDK.updateProfile(cred.user, { displayName: name });
+
+                        const userDocRef = SDK.doc(db, 'artifacts', appId, 'public', 'data', 'users', cred.user.uid);
+                        const txColRef = SDK.collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+
+                        await SDK.setDoc(userDocRef, {
+                            uid: cred.user.uid,
+                            fullName: name,
+                            fullNameLower: name.toLowerCase(),
+                            email: email,
+                            walletNumber: generateWalletNumber(cred.user.uid),
+                            balance: 1000,
+                            createdAt: SDK.serverTimestamp()
+                        });
+
+                        await SDK.addDoc(txColRef, {
+                            senderId: 'SYSTEM',
+                            senderName: 'ORINJI COIN',
+                            recipientId: cred.user.uid,
+                            recipientName: name,
+                            amount: 1000,
+                            type: 'topup',
+                            isWelcome: true,
+                            timestamp: SDK.serverTimestamp()
+                        });
+                    } else {
+                        await SDK.signInWithEmailAndPassword(auth, email, password);
+                    }
+                    setFullNameInput('');
+                    setEmailInput('');
+                    setPasswordInput('');
+                    setActiveView('dashboard');
+                } catch (err) {
+                    if (err.code === 'auth/email-already-in-use') {
+                        setAuthError(t.authErrorInUse);
+                    } else if (
+                        err.code === 'auth/invalid-credential' ||
+                        err.code === 'auth/wrong-password' ||
+                        err.code === 'auth/user-not-found'
+                    ) {
+                        setAuthError(t.authErrorInvalid);
+                    } else {
+                        setAuthError(t.authErrorGeneric);
+                    }
+                } finally {
+                    setAuthSubmitting(false);
+                }
+            };
+
+            const handleQuickDemoLogin = async () => {
+                if (!fbServices) return;
+                setAuthError('');
+                setAuthSubmitting(true);
+                const { SDK, auth, db, appId } = fbServices;
+                try {
+                    let cred;
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        cred = await SDK.signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        cred = await SDK.signInAnonymously(auth);
+                    }
+                    const userDocRef = SDK.doc(db, 'artifacts', appId, 'public', 'data', 'users', cred.user.uid);
+                    const snap = await SDK.getDoc(userDocRef);
+                    if (!snap.exists()) {
+                        const demoNames = ['Rustam Saidov', 'Madina Karimova', 'Farhod Aliev', 'Zarina Boboeva', 'Somon Mirzoev'];
+                        const pickedName = demoNames[Math.floor(Math.random() * demoNames.length)];
+                        await SDK.setDoc(userDocRef, {
+                            uid: cred.user.uid,
+                            fullName: pickedName,
+                            fullNameLower: pickedName.toLowerCase(),
+                            email: 'demo.wallet@orinji.io',
+                            walletNumber: generateWalletNumber(cred.user.uid),
+                            balance: 1000,
+                            createdAt: SDK.serverTimestamp()
+                        });
+                    }
+                    setActiveView('dashboard');
+                } catch (err) {
+                    setAuthError(t.authErrorGeneric);
+                } finally {
+                    setAuthSubmitting(false);
+                }
+            };
+
+            const handleLogout = async () => {
+                if (!fbServices) return;
+                setDrawerOpen(false);
+                await fbServices.SDK.signOut(fbServices.auth);
+                setActiveView('dashboard');
+            };
+
+            // =======================================================================
+            // 7. WALLET TOP-UP HANDLERS
+            // =======================================================================
+            const handleTopUpNext = (e) => {
+                e.preventDefault();
+                setTopUpError('');
+                const val = parseFloat(topUpAmount);
+                if (isNaN(val) || val <= 0) {
+                    setTopUpError(t.errInvalidAmount);
+                    return;
+                }
+                setTopUpStep(2);
+            };
+
+            const handleConfirmTopUp = async () => {
+                if (!fbServices || !authUser || !userProfile || topUpProcessing) return;
+                const val = Math.round(parseFloat(topUpAmount) * 100) / 100;
+                if (isNaN(val) || val <= 0) {
+                    setTopUpError(t.errInvalidAmount);
+                    return;
+                }
+
+                setTopUpProcessing(true);
+                setTopUpError('');
+                const { SDK, db, appId } = fbServices;
+                const userDocRef = SDK.doc(db, 'artifacts', appId, 'public', 'data', 'users', authUser.uid);
+                const txColRef = SDK.collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+
+                try {
+                    await SDK.runTransaction(db, async (transaction) => {
+                        const userSnap = await transaction.get(userDocRef);
+                        if (!userSnap.exists()) throw new Error("User not found");
+                        const currentBal = Number(userSnap.data().balance || 0);
+                        const updatedBal = Math.round((currentBal + val) * 100) / 100;
+                        transaction.update(userDocRef, { balance: updatedBal });
+                    });
+
+                    await SDK.addDoc(txColRef, {
+                        senderId: 'TOPUP',
+                        senderName: t.walletTopUpType,
+                        recipientId: authUser.uid,
+                        recipientName: userProfile.fullName,
+                        amount: val,
+                        type: 'topup',
+                        timestamp: SDK.serverTimestamp()
+                    });
+
+                    setSuccessOverlayData({
+                        recipientName: userProfile.fullName,
+                        amount: val
+                    });
+                    setTopUpAmount('');
+                    setTopUpStep(1);
+                } catch (err) {
+                    console.error(err);
+                    setTopUpError(t.errTransactionFailed);
+                } finally {
+                    setTopUpProcessing(false);
+                }
+            };
+
+            // =======================================================================
+            // 8. SEND COINS & LIVE USER SEARCH HANDLERS
+            // =======================================================================
+            const matchingRecipients = useMemo(() => {
+                const q = recipientQuery.trim().toLowerCase();
+                if (!q || !authUser) return [];
+                return allUsers.filter((u) => {
+                    if (u.uid === authUser.uid || u.id === authUser.uid) return false;
+                    const name = (u.fullName || '').toLowerCase();
+                    return name.includes(q);
+                });
+            }, [recipientQuery, allUsers, authUser]);
+
+            const handleInitiateSend = (e) => {
+                e.preventDefault();
+                setSendError('');
+
+                if (!selectedRecipient) {
+                    setSendError(t.errSelectRecipient);
+                    return;
+                }
+                if (selectedRecipient.uid === authUser.uid) {
+                    setSendError(t.errSelfTransfer);
+                    return;
+                }
+                const val = Math.round(parseFloat(sendAmount) * 100) / 100;
+                if (isNaN(val) || val <= 0) {
+                    setSendError(t.errInvalidAmount);
+                    return;
+                }
+                const currentBal = Number(userProfile?.balance || 0);
+                if (val > currentBal) {
+                    setSendError(t.errInsufficientBalance);
+                    return;
+                }
+
+                setSendConfirmOpen(true);
+            };
+
+            const handleExecuteTransfer = async () => {
+                if (!fbServices || !authUser || !userProfile || !selectedRecipient || sendProcessing) return;
+                const val = Math.round(parseFloat(sendAmount) * 100) / 100;
+                if (isNaN(val) || val <= 0) return;
+
+                setSendProcessing(true);
+                setSendError('');
+                const { SDK, db, appId } = fbServices;
+
+                const senderRef = SDK.doc(db, 'artifacts', appId, 'public', 'data', 'users', authUser.uid);
+                const recipientUid = selectedRecipient.uid || selectedRecipient.id;
+                const recipientRef = SDK.doc(db, 'artifacts', appId, 'public', 'data', 'users', recipientUid);
+                const txColRef = SDK.collection(db, 'artifacts', appId, 'public', 'data', 'transactions');
+
+                try {
+                    // Atomic Firestore Transaction: prevents negative balance & verifies recipient
+                    await SDK.runTransaction(db, async (transaction) => {
+                        const senderSnap = await transaction.get(senderRef);
+                        const recipientSnap = await transaction.get(recipientRef);
+
+                        if (!senderSnap.exists()) throw new Error("SENDER_MISSING");
+                        if (!recipientSnap.exists()) throw new Error("RECIPIENT_MISSING");
+
+                        const senderBalance = Number(senderSnap.data().balance || 0);
+                        if (senderBalance < val) {
+                            throw new Error("INSUFFICIENT_FUNDS");
+                        }
+
+                        const recipientBalance = Number(recipientSnap.data().balance || 0);
+
+                        transaction.update(senderRef, {
+                            balance: Math.round((senderBalance - val) * 100) / 100
+                        });
+                        transaction.update(recipientRef, {
+                            balance: Math.round((recipientBalance + val) * 100) / 100
+                        });
+                    });
+
+                    // Record transaction in history
+                    await SDK.addDoc(txColRef, {
+                        senderId: authUser.uid,
+                        senderName: userProfile.fullName,
+                        recipientId: recipientUid,
+                        recipientName: selectedRecipient.fullName,
+                        amount: val,
+                        type: 'transfer',
+                        timestamp: SDK.serverTimestamp()
+                    });
+
+                    const sentRecipientName = selectedRecipient.fullName;
+                    setSendConfirmOpen(false);
+                    setSendAmount('');
+                    setSelectedRecipient(null);
+                    setRecipientQuery('');
+
+                    // Trigger Payment Success Full-Screen Animation
+                    setSuccessOverlayData({
+                        recipientName: sentRecipientName,
+                        amount: val
+                    });
+                } catch (err) {
+                    setSendConfirmOpen(false);
+                    if (err.message === 'INSUFFICIENT_FUNDS') {
+                        setSendError(t.errInsufficientBalance);
+                    } else if (err.message === 'RECIPIENT_MISSING') {
+                        setSendError(t.errRecipientMissing);
+                    } else {
+                        setSendError(t.errTransactionFailed);
+                    }
+                } finally {
+                    setSendProcessing(false);
+                }
+            };
+
+            // =======================================================================
+            // 9. FILTERED TRANSACTIONS FOR HISTORY VIEW
+            // =======================================================================
+            const filteredTransactions = useMemo(() => {
+                if (!authUser) return [];
+                return transactions.filter((tx) => {
+                    const isIncoming = tx.recipientId === authUser.uid;
+                    if (historyFilter === 'sent') return !isIncoming;
+                    if (historyFilter === 'received') return isIncoming;
+                    return true;
+                });
+            }, [transactions, historyFilter, authUser]);
+
+            // =======================================================================
+            // 10. LOADING SCREEN
+            // =======================================================================
+            if (authLoading) {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center app-gradient-bg p-6">
+                        <OrinjiLogo size={56} />
+                        <div className="mt-4 text-lg font-bold tracking-widest uppercase text-white">{t.brandName}</div>
+                        <div className="mt-4 w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                );
+            }
+
+            // =======================================================================
+            // 11. AUTHENTICATION VIEW (LOGIN / REGISTER)
+            // =======================================================================
+            if (!authUser) {
+                return (
+                    <div className="min-h-screen flex flex-col justify-between items-center p-4 sm:p-6 app-gradient-bg">
+                        {/* Top Bar with Language Switcher */}
+                        <div className="w-full max-w-md flex items-center justify-between pt-2">
+                            <div className="flex items-center gap-2.5">
+                                <OrinjiLogo size={36} />
+                                <div>
+                                    <div className="font-extrabold tracking-wider text-base leading-none">{t.brandName}</div>
+                                    <div className="text-[11px] text-emerald-300/80 mt-0.5">{t.brandSubtitle}</div>
+                                </div>
+                            </div>
+
+                            {/* Language Switcher EN | RU */}
+                            <div className="glass-panel rounded-full p-1 flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    onClick={() => handleLanguageChange('en')}
+                                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${lang === 'en' ? 'bg-emerald-500 text-navy-950 shadow' : 'text-white/75 hover:text-white'
+                                        }`}
+                                >
+                                    EN
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleLanguageChange('ru')}
+                                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${lang === 'ru' ? 'bg-emerald-500 text-navy-950 shadow' : 'text-white/75 hover:text-white'
+                                        }`}
+                                >
+                                    RU
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Auth Card */}
+                        <div className="w-full max-w-md glass-panel rounded-3xl p-6 sm:p-8 my-6 shadow-2xl">
+                            <div className="mb-6">
+                                <h1 className="text-2xl font-extrabold text-white">{t.welcomeTitle}</h1>
+                                <p className="text-sm text-white/65 mt-1">{t.welcomeSub}</p>
+                            </div>
+
+                            {/* Tabs */}
+                            <div className="grid grid-cols-2 gap-1.5 bg-navy-950/60 p-1.5 rounded-2xl mb-6">
+                                <button
+                                    type="button"
+                                    onClick={() => { setAuthMode('login'); setAuthError(''); }}
+                                    className={`py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${authMode === 'login'
+                                            ? 'bg-emerald-500 text-navy-950 shadow-md'
+                                            : 'text-white/70 hover:text-white'
+                                        }`}
+                                >
+                                    {t.loginTab}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => { setAuthMode('register'); setAuthError(''); }}
+                                    className={`py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${authMode === 'register'
+                                            ? 'bg-emerald-500 text-navy-950 shadow-md'
+                                            : 'text-white/70 hover:text-white'
+                                        }`}
+                                >
+                                    {t.registerTab}
+                                </button>
+                            </div>
+
+                            {authError && (
+                                <div className="mb-4 p-3.5 rounded-2xl bg-red-500/15 border border-red-400/30 text-red-200 text-xs flex items-center gap-2.5">
+                                    <Icon name="alert-circle" size={16} className="text-red-400" />
+                                    <span>{authError}</span>
+                                </div>
+                            )}
+
+                            <form onSubmit={handleAuthSubmit} className="space-y-4">
+                                {authMode === 'register' && (
+                                    <div>
+                                        <label className="block text-xs font-medium text-white/75 mb-1.5">{t.fullNameLabel}</label>
+                                        <div className="relative">
+                                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/45">
+                                                <Icon name="user" size={18} />
+                                            </span>
+                                            <input
+                                                type="text"
+                                                value={fullNameInput}
+                                                onChange={(e) => setFullNameInput(e.target.value)}
+                                                placeholder={t.fullNamePlaceholder}
+                                                className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-navy-950/65 border border-white/10 focus:border-emerald-400 focus:outline-none text-sm text-white placeholder-white/35"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="block text-xs font-medium text-white/75 mb-1.5">{t.emailLabel}</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/45">
+                                            <Icon name="mail" size={18} />
+                                        </span>
+                                        <input
+                                            type="email"
+                                            value={emailInput}
+                                            onChange={(e) => setEmailInput(e.target.value)}
+                                            placeholder={t.emailPlaceholder}
+                                            className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-navy-950/65 border border-white/10 focus:border-emerald-400 focus:outline-none text-sm text-white placeholder-white/35"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-medium text-white/75 mb-1.5">{t.passwordLabel}</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/45">
+                                            <Icon name="lock" size={18} />
+                                        </span>
+                                        <input
+                                            type="password"
+                                            value={passwordInput}
+                                            onChange={(e) => setPasswordInput(e.target.value)}
+                                            placeholder={t.passwordPlaceholder}
+                                            className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-navy-950/65 border border-white/10 focus:border-emerald-400 focus:outline-none text-sm text-white placeholder-white/35"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={authSubmitting}
+                                    className="w-full py-3.5 mt-2 rounded-2xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-navy-950 font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+                                >
+                                    {authSubmitting ? '...' : authMode === 'login' ? t.loginBtn : t.registerBtn}
+                                </button>
+                            </form>
+
+                            <div className="mt-5 pt-5 border-t border-white/10">
+                                <button
+                                    type="button"
+                                    onClick={handleQuickDemoLogin}
+                                    disabled={authSubmitting}
+                                    className="w-full py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                                >
+                                    <Icon name="sparkles" size={16} className="text-emerald-400" />
+                                    <span>{t.quickDemoBtn}</span>
+                                </button>
+                                <p className="text-[11px] text-center text-white/50 mt-2">{t.demoHint}</p>
+                            </div>
+                        </div>
+
+                        <div className="text-[11px] text-white/40 pb-2">{t.appVersion}</div>
+                    </div>
+                );
+            }
+
+            // =======================================================================
+            // 12. AUTHENTICATED WALLET APPLICATION SHELL
+            // =======================================================================
+            const currentBalance = Number(userProfile?.balance ?? 0);
+            const displayName = userProfile?.fullName || authUser.displayName || 'User';
+            const walletNumber = userProfile?.walletNumber || generateWalletNumber(authUser.uid);
+
+            return (
+                <div className="min-h-screen flex justify-center app-gradient-bg">
+                    {/* Full-Screen Payment Success Animation Overlay */}
+                    <PaymentSuccessOverlay
+                        data={successOverlayData}
+                        t={t}
+                        onDone={() => {
+                            setSuccessOverlayData(null);
+                            setActiveView('dashboard');
+                        }}
+                    />
+
+                    {/* Floating Toast Notification */}
+                    {toastMsg && (
+                        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-emerald-500 text-navy-950 font-bold text-xs shadow-xl flex items-center gap-2">
+                            <Icon name="check-circle" size={15} />
+                            <span>{toastMsg}</span>
+                        </div>
+                    )}
+
+                    {/* Mobile-First Responsive Container (Centered Banking App Shell) */}
+                    <div className="w-full max-w-lg min-h-screen flex flex-col relative px-4 sm:px-6 pb-10">
+                        {/* =============================================================== */}
+                        {/* TOP NAVIGATION HEADER                                           */}
+                        {/* =============================================================== */}
+                        <header className="flex items-center justify-between py-5 sticky top-0 z-30 backdrop-blur-md">
+                            {/* Brand Logo & Name */}
+                            <button
+                                onClick={() => setActiveView('dashboard')}
+                                className="flex items-center gap-2.5 text-left cursor-pointer group"
+                            >
+                                <OrinjiLogo size={36} />
+                                <div>
+                                    <span className="font-extrabold tracking-wider text-base sm:text-lg text-white group-hover:text-emerald-300 transition-colors">
+                                        {t.brandName}
+                                    </span>
+                                </div>
+                            </button>
+
+                            {/* Right Controls: Language Switcher (EN | RU) + Three-Line Hamburger */}
+                            <div className="flex items-center gap-2.5">
+                                <div className="glass-panel rounded-full p-1 flex items-center">
+                                    <button
+                                        onClick={() => handleLanguageChange('en')}
+                                        className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${lang === 'en' ? 'bg-emerald-500 text-navy-950' : 'text-white/75 hover:text-white'
+                                            }`}
+                                    >
+                                        EN
+                                    </button>
+                                    <button
+                                        onClick={() => handleLanguageChange('ru')}
+                                        className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${lang === 'ru' ? 'bg-emerald-500 text-navy-950' : 'text-white/75 hover:text-white'
+                                            }`}
+                                    >
+                                        RU
+                                    </button>
+                                </div>
+
+                                {/* Three-Line Hamburger Menu Button */}
+                                <button
+                                    onClick={() => setDrawerOpen(true)}
+                                    aria-label="Open menu"
+                                    className="w-10 h-10 rounded-2xl glass-panel hover:bg-white/10 flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                >
+                                    <span className="w-5 h-0.5 bg-white rounded-full" />
+                                    <span className="w-5 h-0.5 bg-white rounded-full" />
+                                    <span className="w-5 h-0.5 bg-white rounded-full" />
+                                </button>
+                            </div>
+                        </header>
+
+                        {/* =============================================================== */}
+                        {/* HAMBURGER SIDE NAVIGATION DRAWER                                */}
+                        {/* =============================================================== */}
+                        {drawerOpen && (
+                            <div className="fixed inset-0 z-40 flex justify-end">
+                                {/* Backdrop */}
+                                <div
+                                    onClick={() => setDrawerOpen(false)}
+                                    className="fixed inset-0 bg-black/65 backdrop-blur-xs backdrop-fade-in"
+                                />
+
+                                {/* Side Navigation Panel */}
+                                <aside className="relative z-10 w-80 max-w-[85vw] h-full app-gradient-bg border-l border-white/15 p-6 flex flex-col justify-between drawer-slide-in shadow-2xl">
+                                    <div>
+                                        {/* Drawer Header */}
+                                        <div className="flex items-center justify-between pb-6 border-b border-white/10">
+                                            <div className="flex items-center gap-2.5">
+                                                <OrinjiLogo size={32} />
+                                                <span className="font-extrabold tracking-wider text-sm">{t.brandName}</span>
+                                            </div>
+                                            <button
+                                                onClick={() => setDrawerOpen(false)}
+                                                className="w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-white/80 hover:text-white cursor-pointer"
+                                            >
+                                                <Icon name="x" size={18} />
+                                            </button>
+                                        </div>
+
+                                        {/* User Quick Badge */}
+                                        <div className="my-5 p-3.5 rounded-2xl glass-panel flex items-center gap-3">
+                                            <div className="w-11 h-11 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center font-bold text-emerald-300 text-base shrink-0">
+                                                {displayName.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <div className="font-bold text-sm text-white truncate">{displayName}</div>
+                                                <div className="text-xs text-emerald-300/80 font-mono">{walletNumber}</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Navigation Links */}
+                                        <nav className="space-y-1.5">
+                                            {[
+                                                { id: 'dashboard', label: t.menuDashboard, icon: 'layout-dashboard' },
+                                                { id: 'topup', label: t.menuTopUp, icon: 'plus-circle' },
+                                                { id: 'history', label: t.menuHistory, icon: 'history' },
+                                                { id: 'settings', label: t.menuSettings, icon: 'settings' },
+                                                { id: 'profile', label: t.menuProfile, icon: 'user' },
+                                            ].map((item) => {
+                                                const isActive = activeView === item.id;
+                                                return (
+                                                    <button
+                                                        key={item.id}
+                                                        onClick={() => {
+                                                            if (item.id === 'topup') {
+                                                                setTopUpStep(1);
+                                                                setTopUpError('');
+                                                            }
+                                                            setActiveView(item.id);
+                                                            setDrawerOpen(false);
+                                                        }}
+                                                        className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${isActive
+                                                                ? 'bg-emerald-500 text-navy-950 shadow-lg shadow-emerald-500/20'
+                                                                : 'text-white/85 hover:bg-white/10'
+                                                            }`}
+                                                    >
+                                                        <Icon name={item.icon} size={19} />
+                                                        <span>{item.label}</span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </nav>
+                                    </div>
+
+                                    {/* Logout Button */}
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-red-500/15 hover:bg-red-500/25 border border-red-400/25 text-red-200 text-sm font-semibold transition-all cursor-pointer"
+                                    >
+                                        <Icon name="log-out" size={18} />
+                                        <span>{t.menuLogout}</span>
+                                    </button>
+                                </aside>
+                            </div>
+                        )}
+
+                        {/* =============================================================== */}
+                        {/* VIEW 1: MAIN DASHBOARD                                          */}
+                        {/* =============================================================== */}
+                        {activeView === 'dashboard' && (
+                            <main className="space-y-6">
+                                {/* Large Wallet Balance Card */}
+                                <section className="wallet-card-gradient rounded-3xl p-6 sm:p-7 relative overflow-hidden border border-white/15">
+                                    {/* Decorative Banking Circles */}
+                                    <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-emerald-400/15 blur-xl pointer-events-none" />
+                                    <div className="absolute -left-12 -bottom-14 w-48 h-48 rounded-full bg-sky-400/10 blur-xl pointer-events-none" />
+
+                                    <div className="relative z-10">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-medium uppercase tracking-wider text-white/75">
+                                                {t.totalBalance}
+                                            </span>
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-400/20 border border-emerald-300/30 text-[11px] font-semibold text-emerald-200">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                                {t.activeStatus}
+                                            </span>
+                                        </div>
+
+                                        {/* Dynamic Balance Display */}
+                                        <div className="mt-4 flex items-baseline gap-2.5">
+                                            <span className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+                                                {formatCoins(currentBalance)}
+                                            </span>
+                                            <span className="text-base sm:text-lg font-bold text-emerald-300 tracking-wider">
+                                                ORINJI
+                                            </span>
+                                        </div>
+
+                                        {/* Wallet ID Row */}
+                                        <div className="mt-5 flex items-center justify-between text-xs text-white/70">
+                                            <button
+                                                onClick={() => copyToClipboard(walletNumber)}
+                                                className="inline-flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer font-mono"
+                                            >
+                                                <span>{walletNumber}</span>
+                                                <Icon name="copy" size={13} />
+                                            </button>
+                                            <span className="font-medium text-white/85 truncate max-w-[140px]">
+                                                {displayName}
+                                            </span>
+                                        </div>
+
+                                        {/* Prominent Action Buttons: SEND & TOP UP */}
+                                        <div className="mt-6 grid grid-cols-2 gap-3">
+                                            <button
+                                                onClick={() => {
+                                                    setSendError('');
+                                                    setSelectedRecipient(null);
+                                                    setRecipientQuery('');
+                                                    setSendAmount('');
+                                                    setActiveView('send');
+                                                }}
+                                                className="py-3.5 px-4 rounded-2xl bg-white text-navy-950 hover:bg-emerald-50 active:scale-[0.98] font-extrabold text-sm tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+                                            >
+                                                <Icon name="send" size={17} className="text-emerald-600" />
+                                                <span>{t.sendBtn}</span>
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    setTopUpStep(1);
+                                                    setTopUpAmount('');
+                                                    setTopUpError('');
+                                                    setActiveView('topup');
+                                                }}
+                                                className="py-3.5 px-4 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/20 active:scale-[0.98] text-white font-bold text-sm tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+                                            >
+                                                <Icon name="plus" size={18} className="text-emerald-300" />
+                                                <span>{t.topUpQuickBtn}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Transaction History Section */}
+                                <section className="space-y-3.5">
+                                    <div className="flex items-center justify-between px-1">
+                                        <h2 className="text-base font-bold text-white">{t.recentTransactions}</h2>
+                                        {transactions.length > 0 && (
+                                            <button
+                                                onClick={() => setActiveView('history')}
+                                                className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 cursor-pointer"
+                                            >
+                                                {t.viewAll}
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {transactions.length === 0 ? (
+                                        <div className="glass-panel rounded-3xl p-8 text-center">
+                                            <div className="w-12 h-12 rounded-2xl bg-white/5 mx-auto flex items-center justify-center text-emerald-400 mb-3">
+                                                <Icon name="wallet" size={22} />
+                                            </div>
+                                            <div className="text-sm font-semibold text-white">{t.noTransactions}</div>
+                                            <p className="text-xs text-white/55 mt-1">{t.noTransactionsSub}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2.5">
+                                            {transactions.slice(0, 8).map((tx) => {
+                                                const isIncoming = tx.recipientId === authUser.uid;
+                                                const isTopUp = tx.type === 'topup' || tx.senderId === 'TOPUP' || tx.senderId === 'SYSTEM';
+                                                const title = isTopUp
+                                                    ? (tx.isWelcome ? t.welcomeBonusType : t.walletTopUpType)
+                                                    : isIncoming
+                                                        ? `${t.receivedFrom} ${tx.senderName}`
+                                                        : `${t.sentTo} ${tx.recipientName}`;
+
+                                                return (
+                                                    <div
+                                                        key={tx.id}
+                                                        className="glass-panel glass-card-hover rounded-2xl p-4 flex items-center justify-between gap-3"
+                                                    >
+                                                        <div className="flex items-center gap-3.5 min-w-0">
+                                                            <div
+                                                                className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${isIncoming
+                                                                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-400/25'
+                                                                        : 'bg-amber-500/15 text-amber-300 border border-amber-400/25'
+                                                                    }`}
+                                                            >
+                                                                <Icon
+                                                                    name={isTopUp ? 'plus-circle' : isIncoming ? 'arrow-down-left' : 'arrow-up-right'}
+                                                                    size={20}
+                                                                />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <div className="text-sm font-semibold text-white truncate">{title}</div>
+                                                                <div className="text-[11px] text-white/50 mt-0.5">
+                                                                    {formatDateTime(tx.timestamp, lang)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="text-right shrink-0">
+                                                            <div
+                                                                className={`text-sm font-extrabold ${isIncoming ? 'text-emerald-400' : 'text-white'
+                                                                    }`}
+                                                            >
+                                                                {isIncoming ? '+' : '-'}{formatCoins(tx.amount)}
+                                                            </div>
+                                                            <div className="text-[10px] font-bold text-white/45 tracking-wider">ORINJI</div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </section>
+                            </main>
+                        )}
+
+                        {/* =============================================================== */}
+                        {/* VIEW 2: WALLET TOP-UP ("Пополнение кошелька")                   */}
+                        {/* =============================================================== */}
+                        {activeView === 'topup' && (
+                            <main className="space-y-6">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => {
+                                            if (topUpStep === 2) {
+                                                setTopUpStep(1);
+                                            } else {
+                                                setActiveView('dashboard');
+                                            }
+                                        }}
+                                        className="w-10 h-10 rounded-2xl glass-panel hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                                    >
+                                        <Icon name="arrow-left" size={19} />
+                                    </button>
+                                    <div>
+                                        <h1 className="text-xl font-extrabold text-white">{t.topUpTitle}</h1>
+                                        <p className="text-xs text-white/60">
+                                            {topUpStep === 1 ? t.topUpStep1Sub : t.confirmTopUpSub}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {topUpError && (
+                                    <div className="p-3.5 rounded-2xl bg-red-500/15 border border-red-400/30 text-red-200 text-xs flex items-center gap-2.5">
+                                        <Icon name="alert-circle" size={16} className="text-red-400" />
+                                        <span>{topUpError}</span>
+                                    </div>
+                                )}
+
+                                {topUpStep === 1 ? (
+                                    <form onSubmit={handleTopUpNext} className="glass-panel rounded-3xl p-6 space-y-6">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-white/75 mb-2">
+                                                {t.amountLabel}
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    step="any"
+                                                    min="1"
+                                                    value={topUpAmount}
+                                                    onChange={(e) => setTopUpAmount(e.target.value)}
+                                                    placeholder={t.enterAmountPlaceholder}
+                                                    autoFocus
+                                                    className="w-full px-4 py-4 rounded-2xl bg-navy-950/70 border border-white/15 focus:border-emerald-400 focus:outline-none text-2xl font-extrabold text-white placeholder-white/25"
+                                                />
+                                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-extrabold tracking-wider text-emerald-400">
+                                                    ORINJI
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Quick Amount Presets */}
+                                        <div>
+                                            <span className="block text-xs text-white/55 mb-2.5">{t.quickSelect}</span>
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {[100, 250, 500, 1000].map((preset) => (
+                                                    <button
+                                                        key={preset}
+                                                        type="button"
+                                                        onClick={() => setTopUpAmount(String(preset))}
+                                                        className="py-2.5 rounded-xl bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-400/40 text-xs font-bold text-white transition-all cursor-pointer"
+                                                    >
+                                                        +{preset}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.99] text-navy-950 font-extrabold text-sm tracking-wider shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+                                        >
+                                            {t.nextBtn}
+                                        </button>
+                                    </form>
+                                ) : (
+                                    /* Confirmation Screen */
+                                    <div className="glass-panel rounded-3xl p-6 space-y-6">
+                                        <div className="text-center py-3">
+                                            <div className="text-xs uppercase tracking-wider text-white/60 mb-1">
+                                                {t.confirmTopUpTitle}
+                                            </div>
+                                            <div className="text-4xl font-extrabold text-emerald-400">
+                                                +{formatCoins(topUpAmount)} <span className="text-base text-white">ORINJI</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3 bg-navy-950/55 rounded-2xl p-4 border border-white/10 text-sm">
+                                            <div className="flex justify-between">
+                                                <span className="text-white/60">{t.topUpAmountRow}</span>
+                                                <span className="font-semibold">{formatCoins(topUpAmount)} ORINJI</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-white/60">{t.commissionRow}</span>
+                                                <span className="text-emerald-400 font-medium">{t.freeFee}</span>
+                                            </div>
+                                            <div className="border-t border-white/10 pt-3 flex justify-between font-bold text-base">
+                                                <span>{t.totalCreditRow}</span>
+                                                <span className="text-emerald-400">{formatCoins(topUpAmount)} ORINJI</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setTopUpStep(1)}
+                                                disabled={topUpProcessing}
+                                                className="py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 font-bold text-sm text-white transition-all cursor-pointer"
+                                            >
+                                                {t.backBtn}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleConfirmTopUp}
+                                                disabled={topUpProcessing}
+                                                className="py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-navy-950 font-extrabold text-sm tracking-wider shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+                                            >
+                                                {topUpProcessing ? '...' : t.confirmBtn}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </main>
+                        )}
+
+                        {/* =============================================================== */}
+                        {/* VIEW 3: SEND COINS (TRANSFER WITH LIVE USER SEARCH)             */}
+                        {/* =============================================================== */}
+                        {activeView === 'send' && (
+                            <main className="space-y-6">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setActiveView('dashboard')}
+                                        className="w-10 h-10 rounded-2xl glass-panel hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                                    >
+                                        <Icon name="arrow-left" size={19} />
+                                    </button>
+                                    <div>
+                                        <h1 className="text-xl font-extrabold text-white">{t.sendTitle}</h1>
+                                        <p className="text-xs text-white/60">{t.sendSub}</p>
+                                    </div>
+                                </div>
+
+                                {sendError && (
+                                    <div className="p-3.5 rounded-2xl bg-red-500/15 border border-red-400/30 text-red-200 text-xs flex items-center gap-2.5">
+                                        <Icon name="alert-circle" size={16} className="text-red-400" />
+                                        <span>{sendError}</span>
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleInitiateSend} className="glass-panel rounded-3xl p-6 space-y-5">
+                                    {/* FIRST INPUT: Recipient Name with Live Autocomplete Search */}
+                                    <div className="relative">
+                                        <label className="block text-xs font-semibold text-white/75 mb-2">
+                                            {t.recipientLabel}
+                                        </label>
+
+                                        {selectedRecipient ? (
+                                            <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className="w-10 h-10 rounded-full bg-emerald-500 text-navy-950 font-extrabold flex items-center justify-center shrink-0">
+                                                        {selectedRecipient.fullName.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <div className="text-sm font-bold text-white truncate">
+                                                            {selectedRecipient.fullName}
+                                                        </div>
+                                                        <div className="text-[11px] text-emerald-300 font-mono">
+                                                            {selectedRecipient.walletNumber || generateWalletNumber(selectedRecipient.uid)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedRecipient(null);
+                                                        setRecipientQuery('');
+                                                        setDropdownOpen(true);
+                                                    }}
+                                                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white shrink-0 cursor-pointer"
+                                                >
+                                                    {t.changeRecipient}
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="relative">
+                                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/45">
+                                                    <Icon name="search" size={18} />
+                                                </span>
+                                                <input
+                                                    type="text"
+                                                    value={recipientQuery}
+                                                    onFocus={() => setDropdownOpen(true)}
+                                                    onChange={(e) => {
+                                                        setRecipientQuery(e.target.value);
+                                                        setDropdownOpen(true);
+                                                        setSendError('');
+                                                    }}
+                                                    placeholder={t.recipientPlaceholder}
+                                                    className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-navy-950/70 border border-white/15 focus:border-emerald-400 focus:outline-none text-sm text-white placeholder-white/35"
+                                                />
+
+                                                {/* Autocomplete Dropdown starting from first typed character */}
+                                                {dropdownOpen && recipientQuery.trim().length > 0 && (
+                                                    <div className="absolute left-0 right-0 mt-2 rounded-2xl bg-navy-900 border border-white/15 shadow-2xl z-20 max-h-60 overflow-y-auto divide-y divide-white/5">
+                                                        {matchingRecipients.length === 0 ? (
+                                                            <div className="p-4 text-center text-xs text-white/60 flex items-center justify-center gap-2">
+                                                                <Icon name="user-x" size={15} className="text-white/45" />
+                                                                <span>{t.userNotFound}</span>
+                                                            </div>
+                                                        ) : (
+                                                            matchingRecipients.map((user) => (
+                                                                <button
+                                                                    key={user.uid || user.id}
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setSelectedRecipient(user);
+                                                                        setRecipientQuery(user.fullName);
+                                                                        setDropdownOpen(false);
+                                                                        setSendError('');
+                                                                    }}
+                                                                    className="w-full p-3.5 hover:bg-emerald-500/15 flex items-center gap-3 text-left transition-colors cursor-pointer"
+                                                                >
+                                                                    <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-400/35 text-emerald-300 font-bold text-sm flex items-center justify-center shrink-0">
+                                                                        {(user.fullName || 'U').charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                    <div className="min-w-0 flex-1">
+                                                                        <div className="text-sm font-semibold text-white truncate">
+                                                                            {user.fullName}
+                                                                        </div>
+                                                                        <div className="text-[11px] text-white/50 font-mono">
+                                                                            {user.walletNumber || generateWalletNumber(user.uid)}
+                                                                        </div>
+                                                                    </div>
+                                                                    <Icon name="chevron-right" size={16} className="text-white/40" />
+                                                                </button>
+                                                            ))
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* SECOND INPUT: Amount of ORINJI Coins */}
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs font-semibold text-white/75">{t.amountLabel}</label>
+                                            <span className="text-xs text-white/60">
+                                                {t.availableBalance}: <strong className="text-emerald-400">{formatCoins(currentBalance)} ORINJI</strong>
+                                            </span>
+                                        </div>
+
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                step="any"
+                                                min="0.01"
+                                                value={sendAmount}
+                                                onChange={(e) => {
+                                                    setSendAmount(e.target.value);
+                                                    setSendError('');
+                                                }}
+                                                placeholder={t.enterAmountPlaceholder}
+                                                className="w-full pl-4 pr-20 py-4 rounded-2xl bg-navy-950/70 border border-white/15 focus:border-emerald-400 focus:outline-none text-2xl font-extrabold text-white placeholder-white/25"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setSendAmount(String(currentBalance))}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-bold tracking-wider cursor-pointer"
+                                            >
+                                                {t.maxBtn}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* THIRD ELEMENT: PAY / ОПЛАТИТЬ Button */}
+                                    <button
+                                        type="submit"
+                                        className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.99] text-navy-950 font-extrabold text-base tracking-wider shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+                                    >
+                                        {t.payBtn}
+                                    </button>
+                                </form>
+
+                                {/* Transfer Confirmation Modal */}
+                                {sendConfirmOpen && selectedRecipient && (
+                                    <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
+                                        <div
+                                            onClick={() => !sendProcessing && setSendConfirmOpen(false)}
+                                            className="fixed inset-0 bg-black/75 backdrop-blur-xs backdrop-fade-in"
+                                        />
+                                        <div className="relative z-10 w-full max-w-sm rounded-3xl app-gradient-bg border border-white/15 p-6 space-y-5 shadow-2xl">
+                                            <div className="text-center">
+                                                <h3 className="text-lg font-extrabold text-white">{t.confirmTransferTitle}</h3>
+                                                <p className="text-xs text-white/60 mt-1">{t.confirmTransferSub}</p>
+                                            </div>
+
+                                            <div className="bg-navy-950/65 rounded-2xl p-4 space-y-3 border border-white/10 text-sm">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-white/60">{t.recipientRow}</span>
+                                                    <span className="font-bold text-white truncate max-w-[170px]">
+                                                        {selectedRecipient.fullName}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-white/60">{t.commissionRow}</span>
+                                                    <span className="text-emerald-400 font-medium">{t.freeFee}</span>
+                                                </div>
+                                                <div className="border-t border-white/10 pt-3 flex justify-between items-baseline">
+                                                    <span className="text-white/75 font-semibold">{t.transferAmountRow}</span>
+                                                    <span className="text-xl font-extrabold text-emerald-400">
+                                                        {formatCoins(sendAmount)} ORINJI
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <button
+                                                    type="button"
+                                                    disabled={sendProcessing}
+                                                    onClick={() => setSendConfirmOpen(false)}
+                                                    className="py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 font-bold text-sm text-white cursor-pointer"
+                                                >
+                                                    {t.backBtn}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    disabled={sendProcessing}
+                                                    onClick={handleExecuteTransfer}
+                                                    className="py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-navy-950 font-extrabold text-xs tracking-wider shadow-lg shadow-emerald-500/25 cursor-pointer"
+                                                >
+                                                    {sendProcessing ? '...' : t.confirmPayBtn}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </main>
+                        )}
+
+                        {/* =============================================================== */}
+                        {/* VIEW 4: FULL TRANSACTION HISTORY ("История операций")           */}
+                        {/* =============================================================== */}
+                        {activeView === 'history' && (
+                            <main className="space-y-5">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setActiveView('dashboard')}
+                                        className="w-10 h-10 rounded-2xl glass-panel hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                                    >
+                                        <Icon name="arrow-left" size={19} />
+                                    </button>
+                                    <h1 className="text-xl font-extrabold text-white">{t.menuHistory}</h1>
+                                </div>
+
+                                {/* Filter Tabs */}
+                                <div className="grid grid-cols-3 gap-1.5 glass-panel p-1.5 rounded-2xl">
+                                    {[
+                                        { id: 'all', label: t.filterAll },
+                                        { id: 'sent', label: t.filterSent },
+                                        { id: 'received', label: t.filterReceived },
+                                    ].map((tab) => (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setHistoryFilter(tab.id)}
+                                            className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${historyFilter === tab.id
+                                                    ? 'bg-emerald-500 text-navy-950'
+                                                    : 'text-white/70 hover:text-white'
+                                                }`}
+                                        >
+                                            {tab.label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {filteredTransactions.length === 0 ? (
+                                    <div className="glass-panel rounded-3xl p-8 text-center">
+                                        <div className="text-sm font-semibold text-white">{t.noTransactions}</div>
+                                        <p className="text-xs text-white/55 mt-1">{t.noTransactionsSub}</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2.5">
+                                        {filteredTransactions.map((tx) => {
+                                            const isIncoming = tx.recipientId === authUser.uid;
+                                            const isTopUp = tx.type === 'topup' || tx.senderId === 'TOPUP' || tx.senderId === 'SYSTEM';
+                                            const title = isTopUp
+                                                ? (tx.isWelcome ? t.welcomeBonusType : t.walletTopUpType)
+                                                : isIncoming
+                                                    ? `${t.receivedFrom} ${tx.senderName}`
+                                                    : `${t.sentTo} ${tx.recipientName}`;
+
+                                            return (
+                                                <div
+                                                    key={tx.id}
+                                                    className="glass-panel rounded-2xl p-4 flex items-center justify-between gap-3"
+                                                >
+                                                    <div className="flex items-center gap-3.5 min-w-0">
+                                                        <div
+                                                            className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${isIncoming
+                                                                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-400/25'
+                                                                    : 'bg-amber-500/15 text-amber-300 border border-amber-400/25'
+                                                                }`}
+                                                        >
+                                                            <Icon
+                                                                name={isTopUp ? 'plus-circle' : isIncoming ? 'arrow-down-left' : 'arrow-up-right'}
+                                                                size={20}
+                                                            />
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <div className="text-sm font-semibold text-white truncate">{title}</div>
+                                                            <div className="text-[11px] text-white/50 mt-0.5">
+                                                                {formatDateTime(tx.timestamp, lang)}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="text-right shrink-0">
+                                                        <div
+                                                            className={`text-sm font-extrabold ${isIncoming ? 'text-emerald-400' : 'text-white'
+                                                                }`}
+                                                        >
+                                                            {isIncoming ? '+' : '-'}{formatCoins(tx.amount)}
+                                                        </div>
+                                                        <div className="text-[10px] font-bold text-white/45">ORINJI</div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </main>
+                        )}
+
+                        {/* =============================================================== */}
+                        {/* VIEW 5: PROFILE ("Профиль")                                     */}
+                        {/* =============================================================== */}
+                        {activeView === 'profile' && (
+                            <main className="space-y-6">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setActiveView('dashboard')}
+                                        className="w-10 h-10 rounded-2xl glass-panel hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                                    >
+                                        <Icon name="arrow-left" size={19} />
+                                    </button>
+                                    <h1 className="text-xl font-extrabold text-white">{t.profileTitle}</h1>
+                                </div>
+
+                                <div className="glass-panel rounded-3xl p-6 text-center">
+                                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-700 text-navy-950 font-extrabold text-3xl flex items-center justify-center mx-auto shadow-lg">
+                                        {displayName.charAt(0).toUpperCase()}
+                                    </div>
+                                    <h2 className="text-xl font-extrabold text-white mt-4">{displayName}</h2>
+                                    <div className="inline-flex items-center gap-1.5 mt-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-xs font-semibold text-emerald-300">
+                                        <Icon name="shield-check" size={14} />
+                                        <span>{t.verifiedHolder}</span>
+                                    </div>
+                                </div>
+
+                                <div className="glass-panel rounded-3xl p-5 space-y-4 text-sm">
+                                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                                        <span className="text-white/60">{t.accountNumber}</span>
+                                        <button
+                                            onClick={() => copyToClipboard(walletNumber)}
+                                            className="font-mono font-bold text-emerald-300 inline-flex items-center gap-1.5 cursor-pointer"
+                                        >
+                                            <span>{walletNumber}</span>
+                                            <Icon name="copy" size={14} />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                                        <span className="text-white/60">{t.emailAddress}</span>
+                                        <span className="font-semibold text-white">{userProfile?.email || authUser.email}</span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-white/60">{t.memberSince}</span>
+                                        <span className="font-semibold text-emerald-400">{t.verifiedActive}</span>
+                                    </div>
+                                </div>
+                            </main>
+                        )}
+
+                        {/* =============================================================== */}
+                        {/* VIEW 6: SETTINGS ("Настройки")                                  */}
+                        {/* =============================================================== */}
+                        {activeView === 'settings' && (
+                            <main className="space-y-6">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setActiveView('dashboard')}
+                                        className="w-10 h-10 rounded-2xl glass-panel hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                                    >
+                                        <Icon name="arrow-left" size={19} />
+                                    </button>
+                                    <h1 className="text-xl font-extrabold text-white">{t.settingsTitle}</h1>
+                                </div>
+
+                                <div className="glass-panel rounded-3xl p-5 space-y-5">
+                                    {/* Language Switcher Row */}
+                                    <div className="flex items-center justify-between gap-4 pb-5 border-b border-white/10">
+                                        <div>
+                                            <div className="text-sm font-bold text-white">{t.languageSetting}</div>
+                                            <div className="text-xs text-white/55 mt-0.5">{t.languageSettingSub}</div>
+                                        </div>
+                                        <div className="bg-navy-950/70 rounded-full p-1 flex items-center border border-white/10 shrink-0">
+                                            <button
+                                                onClick={() => handleLanguageChange('en')}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${lang === 'en' ? 'bg-emerald-500 text-navy-950' : 'text-white/75'
+                                                    }`}
+                                            >
+                                                EN
+                                            </button>
+                                            <button
+                                                onClick={() => handleLanguageChange('ru')}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${lang === 'ru' ? 'bg-emerald-500 text-navy-950' : 'text-white/75'
+                                                    }`}
+                                            >
+                                                RU
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Security Row */}
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <div className="text-sm font-bold text-white">{t.securitySetting}</div>
+                                            <div className="text-xs text-white/55 mt-0.5">{t.securitySettingSub}</div>
+                                        </div>
+                                        <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold shrink-0">
+                                            {t.enabledBadge}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full py-4 rounded-2xl bg-red-500/15 hover:bg-red-500/25 border border-red-400/25 text-red-200 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                                >
+                                    <Icon name="log-out" size={18} />
+                                    <span>{t.menuLogout}</span>
+                                </button>
+
+                                <div className="text-center text-[11px] text-white/40 pt-4">
+                                    {t.appVersion}
+                                </div>
+                            </main>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
